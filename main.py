@@ -81,6 +81,22 @@ def rmerge(a, b, MARRAY, LABEL, N1, M1, N2, M2, N, T):
 
     pass
 
+
+
+
+def test_homogenity(a, N1, M1, N2, M2, T):
+    max=0;min=22
+    i=0;j=0
+
+    for i in range(N1,N2):
+        for j in range(M1,M2):
+            if(a[i][j]<min):min=a[i][j]
+            if (a[i][j]> max): max = a[i][j]
+    if(abs(max-min)<T): return(i)
+    else: return(0)
+    pass
+
+
 def region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2, N, T, REGMAX):
     ret = 0
 
