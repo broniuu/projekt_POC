@@ -13,7 +13,7 @@ x = shape[1]
 NMAX = 250 #nie wiem, chyba granice obrazu
 MMAX = 250 #nie wiem, chyba granice obrazu
 Regmax = 25 #maksymalna ilość regionów
-
+global N
 N=0#ilość regionów # w książce odnoszą sie doniej przez referencje wiec chyba chcą mieć ją jako zmienna globalną, nie nie jestem pewnien jak działa
 MARRAY =[0 for col in range(31)] #wektor zawierajacy średnie wartości każdego regionu **MARRAY
 LABEL = [[0 for col in range(x)] for row in range(y)] # array intow zawierajacy labele // w ksiazce zapisane jako *LABEL
@@ -31,23 +31,24 @@ I=0 #licznik iteracji// nie ma orginalnie w w programie
 
 
 
+
 def increase():##dopisałem sb do iterowanie I
     global I
     I=I+1
-def region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2,N, T, REGMAX):
+def region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2, T, REGMAX):
     ret = 0
     increase()
-
+    global N
     test = test_homogenity(a, N1, M1, N2, M2, T)
     if test == 0 and N2 - N1 > 1 and M2 - M1 > 1:
 
         ret1 = region_split_merge(a, b, MARRAY, LABEL, int(N1), int(M1), int(N1 + (N2 - N1) / 2),
-                                  int(M1 + (M2 - M1) / 2), N, T, REGMAX)
-        ret2 = region_split_merge(a, b, MARRAY, LABEL, int(N1 + (N2 - N1) / 2), M1, N2, int(M1 + (M2 - M1) / 2),N,  T,
+                                  int(M1 + (M2 - M1) / 2),  T, REGMAX)
+        ret2 = region_split_merge(a, b, MARRAY, LABEL, int(N1 + (N2 - N1) / 2), M1, N2, int(M1 + (M2 - M1) / 2),  T,
                                   REGMAX)
-        ret3 = region_split_merge(a, b, MARRAY, LABEL, N1, int(M1 + (M2 - M1) / 2), int(N1 + (N2 - N1) / 2), M2,N,  T,
+        ret3 = region_split_merge(a, b, MARRAY, LABEL, N1, int(M1 + (M2 - M1) / 2), int(N1 + (N2 - N1) / 2), M2,  T,
                                   REGMAX)
-        ret4 = region_split_merge(a, b, MARRAY, LABEL, int(N1 + (N2 - N1) / 2), int(M1 + (M2 - M1) / 2), N2, M2,N,  T,
+        ret4 = region_split_merge(a, b, MARRAY, LABEL, int(N1 + (N2 - N1) / 2), int(M1 + (M2 - M1) / 2), N2, M2,  T,
                                   REGMAX)
         if ret1 == -1 or ret2 == -1 or ret3 == -1 or ret4 == -1:
             ret = -1
@@ -76,7 +77,7 @@ def region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2,N, T, REGMAX):
     return ret
 
 
-def rmerge(a, b, MARRAY, LABEL, N1, M1, N2, M2,N, T):
+def rmerge(a, b, MARRAY, LABEL, N1, M1, N2, M2, T):
     sum = 0
     count = 0
     y=0
@@ -87,7 +88,7 @@ def rmerge(a, b, MARRAY, LABEL, N1, M1, N2, M2,N, T):
     yu=0
     cmin=0
     c=0
-
+    global N
 
     if N1 - 1 >= 0:
         xd = N1 - 1
@@ -182,7 +183,7 @@ def test_homogenity(a, N1, M1, N2, M2, T):
 
 def main():
     print(LABEL)
-    region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2,N, T, Regmax)
+    region_split_merge(a, b, MARRAY, LABEL, N1, M1, N2, M2, T, Regmax)
     print(LABEL)
 
     cv2.imshow('ImageWindow',b)
