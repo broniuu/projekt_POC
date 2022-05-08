@@ -3,21 +3,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.projekt_poc.HelloController">
     <children>
         <HBox prefHeight="25.0" prefWidth="950.0" spacing="40">
             <children>
                 <Button fx:id="chooseP" mnemonicParsing="false" onAction="#getPath" text="Choose Photo" />
-                <Button disable="true" fx:id="start" mnemonicParsing="false" onAction="#start" text="Start" />
+                <Button fx:id="start" disable="true" mnemonicParsing="false" onAction="#start" text="Start" />
                 <ChoiceBox fx:id="jezykBox" onAction="#changeL" prefWidth="150.0" value="set language" />
             </children>
         </HBox>
         <HBox alignment="CENTER" prefHeight="58.0" prefWidth="950.0">
             <children>
                 <Label fx:id="thresholdLabel" prefHeight="17.0" prefWidth="55.0" text="Treshold" />
-                <TextField onAction="#checkAction" fx:id="Threshold" prefHeight="25.0" prefWidth="41.0" />
-                <VBox prefHeight="85.0" prefWidth="565.0" />
+                <TextField fx:id="Threshold" onAction="#checkAction" prefHeight="25.0" prefWidth="41.0" />
+                <VBox alignment="CENTER" prefHeight="85.0" prefWidth="565.0">
+               <children>
+                  <Label fx:id="postep" alignment="CENTER" text="" textAlignment="CENTER">
+                     <font>
+                        <Font size="24.0" />
+                     </font></Label>
+               </children></VBox>
                 <ImageView fx:id="loading" fitHeight="85.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" />
             </children></HBox>
         <HBox alignment="CENTER" prefHeight="300.0" prefWidth="900.0" spacing="90">
