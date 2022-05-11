@@ -178,7 +178,7 @@ public class HelloController implements Initializable {
         int M2 = MMAX;//   punkt w którym koczymy
         LABEL = new int[x][y];
         MARRAY = new double[REGMAX];
-        System.out.println("zdj 00 "+a.get(0,0)[0]);
+        System.out.println("zdj 00 "+a.get(0,0)[0]+"zdj 0 120 "+a.get(0,120)[0]+" zd 320 120 "+a.get(320,120)[0]);
         region_split_merge(b,LABEL,MARRAY,N1, M1, N2, M2, T, REGMAX);
     }
 
@@ -273,7 +273,7 @@ public class HelloController implements Initializable {
             x =N1 -1;
             for (y=yd;y<yu;y++){
                 if (b.get(y,x)[0]!=0){
-                    c = (int) (abs(b.get(y,x)[0])- (float) MARRAY[N]);
+                    c = (int) (abs(b.get(y,x)[0]- (float) MARRAY[N]));
                     if (c<cmin){
                         cmin =c;
                         mergingLabel = LABEL[y][x];
@@ -285,7 +285,7 @@ public class HelloController implements Initializable {
             x =N2 +1;
             for (y=yd;y<yu;y++){
                 if (b.get(y,x)[0]!=0){
-                    c = (int) (abs(b.get(y,x)[0])- (float) MARRAY[N]);
+                    c = (int) (abs(b.get(y,x)[0]- (float) MARRAY[N]));
                     if (c<cmin){
                         cmin =c;
                         mergingLabel = LABEL[y][x];
