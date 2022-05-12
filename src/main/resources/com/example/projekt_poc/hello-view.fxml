@@ -14,11 +14,13 @@
                 <ChoiceBox fx:id="jezykBox" onAction="#changeL" prefWidth="150.0" value="set language" />
             </children>
         </HBox>
-        <HBox alignment="CENTER" prefHeight="58.0" prefWidth="950.0">
+        <HBox spacing="20" alignment="CENTER" prefHeight="58.0" prefWidth="950.0">
             <children>
                 <Label fx:id="thresholdLabel" prefHeight="17.0" prefWidth="55.0" text="Treshold" />
                 <TextField fx:id="Threshold" onAction="#checkAction" prefHeight="25.0" prefWidth="41.0" />
-                <VBox alignment="CENTER" prefHeight="85.0" prefWidth="565.0">
+            <Label text="Iteration Sample" />
+            <ChoiceBox onAction="#chooseIterationSample" fx:id="iterationSampleChoiceBox" prefWidth="150.0"/>
+                <VBox  alignment="CENTER" prefHeight="85.0" prefWidth="300.0">
                <children>
                   <Label fx:id="postep" alignment="CENTER" text="" textAlignment="CENTER">
                      <font>
