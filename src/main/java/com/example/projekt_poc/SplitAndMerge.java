@@ -1,13 +1,9 @@
 package com.example.projekt_poc;
-
-import javafx.application.Platform;
 import javafx.scene.image.Image;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static java.lang.Math.abs;
 import static org.opencv.core.CvType.CV_8UC1;
 
@@ -15,14 +11,14 @@ public class SplitAndMerge {
     double[][] a ;
     double[][] b ;
     List<double[][]> c;
+    int W=0;
     public List<Image> images;
     int y ;
     int x ;
     int N;
     int T = 60;
-    //  int REGMAX = 20000; // maksymalna ilość regionówint
-    int REGMAX = 200000; // maksymalna ilość regionówint
-    double[] MARRAY = new double[REGMAX+3];
+    int REGMAX = 0; // maksymalna ilość regionówint
+    double[] MARRAY = new double[REGMAX];
     int[][] LABEL = new int[x][y]; //array intow zawierajacy labele // w ksiazce zapisane jako *LABEL
     int NI = 0;
     int IT = 0; // licznik iteracji// nie ma orginalnie w w programie
@@ -55,6 +51,7 @@ public class SplitAndMerge {
         int N2 = NMAX;//   punkt w którym koczymy
         int M2 = MMAX;//   punkt w którym koczymy
         LABEL = new int[x][y];
+        REGMAX=x*y;
         MARRAY = new double[REGMAX];
         this.c=new ArrayList<>();
         region_split_merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T, REGMAX);
@@ -71,14 +68,12 @@ public class SplitAndMerge {
                 m.put(i,0, b[i]);
             }
             images.add(mi.toImage(m));
-
-
             NI = NI + sampleIter;
             //imshow("ImageWindow", b);
             //waitKey(0);
         }
         test = test_homogenity(N1, M1, N2, M2, T);
-        if (test == 0 && (N2 - N1) > 1 & (M2 - M1) > 1) {
+        if (test == 0 && (N2 - N1) > 1 && (M2 - M1) > 1) {
             ret1 = region_split_merge(a,b,LABEL,MARRAY,N1, M1, (N1 + (N2 - N1) / 2),
                     (M1 + (M2 - M1) / 2), T, REGMAX);
             ret2 = region_split_merge(a,b,LABEL,MARRAY,(N1 + (N2 - N1) / 2), M1, N2, (M1 + (M2 - M1) / 2), T,
@@ -93,14 +88,14 @@ public class SplitAndMerge {
         } else {
             sum=0;
             N ++;
-            if( N > REGMAX) return -92;
+            if( N >= REGMAX) return -92;
             for(int j=M1;j<M2;j++) {
                 for(int i=N1;i<N2;i++) {
                     sum +=  a[j][i];
                     LABEL[j][i] = N;
                 }
             }
-            sum /= (((long)(N2 - N1) * (long)(M2 - M1)));
+            sum /= (((long) (N2 - N1) * (M2 - M1)));
             for(int j=M1;j<M2;j++) {
                 for(int i=N1;i<N2;i++) {
                     b[j][i]=sum;
@@ -108,6 +103,7 @@ public class SplitAndMerge {
             }
             MARRAY[N] = (int) sum;
             if (N > 1) merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T);
+            W++;
         }
         return ret;
     }
@@ -119,7 +115,6 @@ public class SplitAndMerge {
         if(M1 -1>=0) {yd =M1 -1;}else{yd =0;}
         if(M2 +1 <MMAX) {yu =M2 +1;}else{yu = M2;}
         cmin = 255;
-
         if (M1 -1>=0) {
             y = M1 - 1;
             for (x = xd; x < xu; x++) {
@@ -184,9 +179,11 @@ public class SplitAndMerge {
                             b[y][x]=sum;
                             LABEL[y][x]=mergingLabel;
                         }
+                W++;
             }
             MARRAY[mergingLabel]= sum;
             N--;
+            W--;
         }
     }
 
