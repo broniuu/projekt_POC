@@ -25,8 +25,9 @@ import java.util.ResourceBundle;
 public class HelloController implements Initializable {
     public String[] pol={"start","wybierz plik","następny","poprzedni","Próg","Próbka iteracyjna"};
     public String[] ang={"start","Choose File","next","previous","Threshold","Iteration Sample"};
-    public String[] angL={"Polish","English"};
-    public String[] polL={"Polski","Angielski"};
+//    public Language[] angL={new Language(1, "Polish"), new Language(2, "English")};
+//    public Language[] polL={new Language(1, "Polski"), new Language(2, "Angielski")};
+    public String[] languages ={"Polski","English"};
     public ImageView MainPhoto;
     public ImageView firstIteration;
     public ImageView thirdIteration;
@@ -137,20 +138,21 @@ public class HelloController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         iterationSampleChoiceBox.setItems(listOfItSample);
-        jezykBox.setItems(FXCollections.observableArrayList(angL));
-        jezykBox.setValue(angL[0]);
+        jezykBox.setItems(FXCollections.observableArrayList(languages));
+        jezykBox.setValue(languages[1]);
         iterationSampleChoiceBox.setValue(listOfItSample.get(0));
     }
     public void changeL(ActionEvent event) {
-        jezykBox.setValue(jezykBox.getValue());
-        if(jezykBox.getValue()==angL[0]){
+        if(jezykBox.getValue()== languages[0]){
+            //jezykBox.setItems(FXCollections.observableArrayList(polL));
             thresholdLabel.setText(pol[4]);
             prevB.setText(pol[3]);
             nextB.setText(pol[2]);
             start.setText(pol[0]);
             chooseP.setText(pol[1]);
         }
-        else{
+        if(jezykBox.getValue()== languages[1]){
+            //jezykBox.setItems(FXCollections.observableArrayList(angL));
             thresholdLabel.setText(ang[4]);
             prevB.setText(ang[3]);
             nextB.setText(ang[2]);
@@ -158,6 +160,8 @@ public class HelloController implements Initializable {
             chooseP.setText(ang[1]);
         }
     }
+
+
 
     public void checkAction(ActionEvent event) {
         if(Threshold.getText() != null){
