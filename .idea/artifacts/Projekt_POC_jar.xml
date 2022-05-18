@@ -74,6 +74,7 @@
       <element id="file-copy" path="$PROJECT_DIR$/../../../../../Program Files/Java/javafx-sdk-17.0.2/bin/vcruntime140_1.dll" />
       <element id="library" level="project" name="opencv-455" />
       <element id="file-copy" path="$PROJECT_DIR$/src/java/x64/opencv_java455.dll" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-base:17.0.1" />
     </root>
   </artifact>
 </component>

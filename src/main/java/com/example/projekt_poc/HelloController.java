@@ -15,17 +15,14 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import static java.lang.Math.abs;
-import static org.opencv.core.CvType.CV_8UC1;
 
 public class HelloController implements Initializable {
     public String[] pol={"start","wybierz plik","następny","poprzedni","Próg"};
@@ -96,7 +93,7 @@ public class HelloController implements Initializable {
                 matToImage mi =new matToImage();
                 images=SAM.images;
                 for (int i=0;i<finalMt.rows();i++)
-                    finalMt.put(i,0, SAM.b[i]);
+                    finalMt.put(i,0, SAM.segmentedImagePixels[i]);
                 thirdIteration.setImage(mi.toImage(finalMt));
 
                 if(!images.isEmpty()){
@@ -104,7 +101,7 @@ public class HelloController implements Initializable {
                 }
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
-                        postep.setText("Regions: "+SAM.getN()+"   It:"+SAM.getIT());
+                        postep.setText("Regions: "+SAM.getNumberOfRegions()+"   It:"+SAM.getIterator());
                     }
                 });
                 loading.setImage(new Image("ok-icon.png"));

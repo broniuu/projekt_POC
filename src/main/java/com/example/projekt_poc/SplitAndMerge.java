@@ -1,6 +1,5 @@
 package com.example.projekt_poc;
 
-import javafx.application.Platform;
 import javafx.scene.image.Image;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -12,58 +11,55 @@ import static java.lang.Math.abs;
 import static org.opencv.core.CvType.CV_8UC1;
 
 public class SplitAndMerge {
-    double[][] a ;
-    double[][] b ;
-    List<double[][]> c;
+    double[][] inputImagePixels;
+    double[][] segmentedImagePixels;
     public List<Image> images;
     int y ;
     int x ;
-    int N;
-    int T = 60;
+    int numberOfRegions;
     //  int REGMAX = 20000; // maksymalna ilość regionówint
-    int REGMAX = 200000; // maksymalna ilość regionówint
-    double[] MARRAY = new double[REGMAX+3];
+    final int maximalRegionsCount = 200000; // maksymalna ilość regionówint
+    double[] meanRegionsValues = new double[maximalRegionsCount];
     int[][] LABEL = new int[x][y]; //array intow zawierajacy labele // w ksiazce zapisane jako *LABEL
-    int NI = 0;
-    int IT = 0; // licznik iteracji// nie ma orginalnie w w programie
-    int NMAX = y;  // nie wiem, chyba granice obrazu
-    int sampleIter;
-    int MMAX = x;  // nie wiem, chyba granice obrazu
+    int lastIterationSampleValue = 0;
+    int iterator = 0; // licznik iteracji// nie ma orginalnie w w programie
+    int lastImageRow = y;  // nie wiem, chyba granice obrazu
+    int iterationSampleSize;
+    int lastImageColumn = x;  // nie wiem, chyba granice obrazu
     public void obliczenia(Mat c, int T,int sampleIter) {
         images=new ArrayList<>();
-        IT=0;
-        N=0;
-        this.sampleIter=sampleIter;
+        iterator =0;
+        numberOfRegions =0;
+        this.iterationSampleSize =sampleIter;
         Imgproc.cvtColor(c,c, Imgproc.COLOR_BGR2GRAY);
-        a=new double[c.rows()][c.cols()];
-        b=new double[c.rows()][c.cols()];
+        inputImagePixels =new double[c.rows()][c.cols()];
+        segmentedImagePixels =new double[c.rows()][c.cols()];
         for(int i=0;i<c.rows();i++){
             for(int j=0;j<c.cols();j++){
-                a[i][j]=c.get(i,j)[0];
-                b[i][j]=c.get(i,j)[0];
+                inputImagePixels[i][j]=c.get(i,j)[0];
+                segmentedImagePixels[i][j]=c.get(i,j)[0];
             }
         }
         y = c.rows();
         x =  c.cols();
-        NMAX = x; // nie wiem, chyba granice obrazu
-        MMAX = y; // nie wiem, chyba granice obrazu
-        N = 0; // ilość regionów # w książce odnoszą sie doniej przez referencje wiec chyba chcą mieć ją jako zmienna
+        lastImageRow = x; // nie wiem, chyba granice obrazu
+        lastImageColumn = y; // nie wiem, chyba granice obrazu
+        numberOfRegions = 0; // ilość regionów # w książce odnoszą sie doniej przez referencje wiec chyba chcą mieć ją jako zmienna
 // globalną, nie nie jestem pewnien jak działa
 
-        int N1 = 0;//  # punkt od którego zaczynamy
-        int M1 = 0;//   punkt od którego zaczynamy
-        int N2 = NMAX;//   punkt w którym koczymy
-        int M2 = MMAX;//   punkt w którym koczymy
+        int firstPixelColumn = 0;//  # punkt od którego zaczynamy
+        int firstPixelRow = 0;//   punkt od którego zaczynamy
+        int lastPixelColumn = lastImageRow;//   punkt w którym koczymy
+        int lastPixelRow = lastImageColumn;//   punkt w którym koczymy
         LABEL = new int[x][y];
-        MARRAY = new double[REGMAX];
-        this.c=new ArrayList<>();
-        region_split_merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T, REGMAX);
+        meanRegionsValues = new double[maximalRegionsCount];
+        region_split_merge(inputImagePixels, segmentedImagePixels,LABEL, meanRegionsValues,firstPixelColumn, firstPixelRow, lastPixelColumn, lastPixelRow, T, maximalRegionsCount);
     }
     public int region_split_merge(double[][] a,double[][] b,int [][] LABEL,double[] MARRAY,int N1, int M1, int N2, int M2, int T, int REGMAX) {
-        IT++;
+        iterator++;
         int  test , ret =0, ret1 , ret2 , ret3 , ret4 ;
         long sum ;
-        if (IT == sampleIter + NI) {
+        if (iterator == iterationSampleSize + lastIterationSampleValue) {
             matToImage mi =new matToImage();
             Mat m=new Mat(x,y, CV_8UC1);
             int j=0;
@@ -73,7 +69,7 @@ public class SplitAndMerge {
             images.add(mi.toImage(m));
 
 
-            NI = NI + sampleIter;
+            lastIterationSampleValue = lastIterationSampleValue + iterationSampleSize;
             //imshow("ImageWindow", b);
             //waitKey(0);
         }
@@ -92,12 +88,12 @@ public class SplitAndMerge {
             }
         } else {
             sum=0;
-            N ++;
-            if( N > REGMAX) return -92;
+            numberOfRegions++;
+            if( numberOfRegions > REGMAX) return -92;
             for(int j=M1;j<M2;j++) {
                 for(int i=N1;i<N2;i++) {
                     sum +=  a[j][i];
-                    LABEL[j][i] = N;
+                    LABEL[j][i] = numberOfRegions;
                 }
             }
             sum /= (((long)(N2 - N1) * (long)(M2 - M1)));
@@ -106,8 +102,8 @@ public class SplitAndMerge {
                     b[j][i]=sum;
                 }
             }
-            MARRAY[N] = (int) sum;
-            if (N > 1) merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T);
+            MARRAY[numberOfRegions] = (int) sum;
+            if (numberOfRegions > 1) merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T);
         }
         return ret;
     }
@@ -115,16 +111,16 @@ public class SplitAndMerge {
         int mergingLabel=0 ,sum , count ,y ,x ,xd ,xu , yd ,yu ,cmin ,c ;
 
         if(N1 -1>=0) xd = N1 - 1;else xd =0;
-        if(N2 +1 <NMAX) {xu = N2 + 1;} else{xu =N2;}
+        if(N2 +1 < lastImageRow) {xu = N2 + 1;} else{xu =N2;}
         if(M1 -1>=0) {yd =M1 -1;}else{yd =0;}
-        if(M2 +1 <MMAX) {yu =M2 +1;}else{yu = M2;}
+        if(M2 +1 < lastImageColumn) {yu =M2 +1;}else{yu = M2;}
         cmin = 255;
 
         if (M1 -1>=0) {
             y = M1 - 1;
             for (x = xd; x < xu; x++) {
                 if (b[y][x]!= 0) {
-                    c = (int) abs(b[y][x] - (float) MARRAY[N]);
+                    c = (int) abs(b[y][x] - (float) MARRAY[numberOfRegions]);
                     if (c < cmin) {
                         cmin = c;
                         mergingLabel = LABEL[y][x];
@@ -132,11 +128,11 @@ public class SplitAndMerge {
                 }
             }
         }
-        if (M2 +1 <MMAX){
+        if (M2 +1 < lastImageColumn){
             y =M2 +1;
             for (x=xd;x<xu;x++){
                 if ( b[y][x]!=0){
-                    c = (int) abs(b[y][x]-(float) MARRAY[N]);
+                    c = (int) abs(b[y][x]-(float) MARRAY[numberOfRegions]);
                     if (c<cmin){
                         cmin =c;
                         mergingLabel = LABEL[y][x];
@@ -148,7 +144,7 @@ public class SplitAndMerge {
             x =N1 -1;
             for (y=yd;y<yu;y++){
                 if (b[y][x]!=0){
-                    c = (int) (abs(b[y][x]- (float) MARRAY[N]));
+                    c = (int) (abs(b[y][x]- (float) MARRAY[numberOfRegions]));
                     if (c<cmin){
                         cmin =c;
                         mergingLabel = LABEL[y][x];
@@ -156,11 +152,11 @@ public class SplitAndMerge {
                 }
             }
         }
-        if (N2 +1 <NMAX){
+        if (N2 +1 < lastImageRow){
             x =N2 +1;
             for (y=yd;y<yu;y++){
                 if (b[y][x]!=0){
-                    c = (int) (abs(b[y][x]- (float) MARRAY[N]));
+                    c = (int) (abs(b[y][x]- (float) MARRAY[numberOfRegions]));
                     if (c<cmin){
                         cmin =c;
                         mergingLabel = LABEL[y][x];
@@ -170,23 +166,23 @@ public class SplitAndMerge {
         }
         if(cmin<T) {
             sum=0;count=0;
-            for (y = 0; y < MMAX; y++)
-                for (x = 0; x < NMAX; x++)
-                    if (LABEL[y][x] == N || LABEL[y][x] == mergingLabel) {
+            for (y = 0; y < lastImageColumn; y++)
+                for (x = 0; x < lastImageRow; x++)
+                    if (LABEL[y][x] == numberOfRegions || LABEL[y][x] == mergingLabel) {
                         sum +=a[y][x];
                         count++;
                     }
             if (count !=0){
                 sum /= count;
-                for (y = 0; y < MMAX; y++)
-                    for (x = 0; x < NMAX; x++)
-                        if(LABEL[y][x]==N ||LABEL[y][x]==mergingLabel ){
+                for (y = 0; y < lastImageColumn; y++)
+                    for (x = 0; x < lastImageRow; x++)
+                        if(LABEL[y][x]== numberOfRegions ||LABEL[y][x]==mergingLabel ){
                             b[y][x]=sum;
                             LABEL[y][x]=mergingLabel;
                         }
             }
             MARRAY[mergingLabel]= sum;
-            N--;
+            numberOfRegions--;
         }
     }
 
@@ -197,8 +193,8 @@ public class SplitAndMerge {
         int j = 0;
         for (i = N1; i < N2; i++) {
             for (j = M1; j < M2; j++) {
-                if (a[i][j] < min) min = (int) a[i][j];
-                if (a[i][j] > max) max = (int) a[i][j];
+                if (inputImagePixels[i][j] < min) min = (int) inputImagePixels[i][j];
+                if (inputImagePixels[i][j] > max) max = (int) inputImagePixels[i][j];
             }
         }
         if (abs(max - min) < T) {
@@ -212,35 +208,27 @@ public class SplitAndMerge {
         return images;
     }
 
-    public double[][] getB() {
-        return b;
+    public double[][] getSegmentedImagePixels() {
+        return segmentedImagePixels;
     }
 
-    public List<double[][]> getC() {
-        return c;
+    public int getNumberOfRegions() {
+        return numberOfRegions;
     }
 
-    public int getN() {
-        return N;
+    public int getIterator() {
+        return iterator;
     }
 
-    public int getIT() {
-        return IT;
+    public void setInputImagePixels(double[][] inputImagePixels) {
+        this.inputImagePixels = inputImagePixels;
     }
 
-    public void setA(double[][] a) {
-        this.a = a;
+    public void setSegmentedImagePixels(double[][] segmentedImagePixels) {
+        this.segmentedImagePixels = segmentedImagePixels;
     }
 
-    public void setB(double[][] b) {
-        this.b = b;
-    }
-
-    public void setT(int t) {
-        T = t;
-    }
-
-    public void setSampleIter(int sampleIter) {
-        this.sampleIter = sampleIter;
+    public void setIterationSampleSize(int iterationSampleSize) {
+        this.iterationSampleSize = iterationSampleSize;
     }
 }
