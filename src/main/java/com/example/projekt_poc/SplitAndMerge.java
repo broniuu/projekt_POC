@@ -3,10 +3,8 @@ package com.example.projekt_poc;
 import javafx.scene.image.Image;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static java.lang.Math.abs;
 import static org.opencv.core.CvType.CV_8UC1;
 
@@ -55,7 +53,7 @@ public class SplitAndMerge {
         meanRegionsValues = new double[maximalRegionsCount];
         region_split_merge(inputImagePixels, segmentedImagePixels,LABEL, meanRegionsValues,firstPixelColumn, firstPixelRow, lastPixelColumn, lastPixelRow, T, maximalRegionsCount);
     }
-    public int region_split_merge(double[][] a,double[][] b,int [][] LABEL,double[] MARRAY,int N1, int M1, int N2, int M2, int T, int REGMAX) {
+    public int region_split_merge(double[][] inputImagePixels,double[][] segmentedImagePixels,int [][] LABEL,double[] meanRegionsValues,int firstPixelColumn, int firstPixelRow, int lastPixelColumn, int lastPixelRow, int T, int maximalRegionsCount) {
         iterator++;
         int  test , ret =0, ret1 , ret2 , ret3 , ret4 ;
         long sum ;
@@ -63,47 +61,46 @@ public class SplitAndMerge {
             matToImage mi =new matToImage();
             Mat m=new Mat(x,y, CV_8UC1);
             int j=0;
-            for (int i=0;i<a[1].length;i++){
-                m.put(i,0, b[i]);
+            for (int i=0;i<inputImagePixels[1].length;i++){
+                m.put(i,0, segmentedImagePixels[i]);
             }
             images.add(mi.toImage(m));
-
-
             lastIterationSampleValue = lastIterationSampleValue + iterationSampleSize;
-            //imshow("ImageWindow", b);
+
+            //imshow("ImageWindow", segmentedImagePixels);
             //waitKey(0);
         }
-        test = test_homogenity(N1, M1, N2, M2, T);
-        if (test == 0 && (N2 - N1) > 1 & (M2 - M1) > 1) {
-            ret1 = region_split_merge(a,b,LABEL,MARRAY,N1, M1, (N1 + (N2 - N1) / 2),
-                    (M1 + (M2 - M1) / 2), T, REGMAX);
-            ret2 = region_split_merge(a,b,LABEL,MARRAY,(N1 + (N2 - N1) / 2), M1, N2, (M1 + (M2 - M1) / 2), T,
-                    REGMAX);
-            ret3 = region_split_merge(a,b,LABEL,MARRAY,N1, (M1 + (M2 - M1) / 2), (N1 + (N2 - N1) / 2), M2, T,
-                    REGMAX);
-            ret4 = region_split_merge(a,b,LABEL,MARRAY,(N1 + (N2 - N1) / 2), (M1 + (M2 - M1) / 2), N2, M2, T,
-                    REGMAX);
+        test = test_homogenity(firstPixelColumn, firstPixelRow, lastPixelColumn, lastPixelRow, T);
+        if (test == 0 && (lastPixelColumn - firstPixelColumn) > 1 && (lastPixelRow - firstPixelRow) > 1) {
+            ret1 = region_split_merge(inputImagePixels,segmentedImagePixels,LABEL,meanRegionsValues,firstPixelColumn, firstPixelRow, (firstPixelColumn + (lastPixelColumn - firstPixelColumn) / 2),
+                    (firstPixelRow + (lastPixelRow - firstPixelRow) / 2), T, maximalRegionsCount);
+            ret2 = region_split_merge(inputImagePixels,segmentedImagePixels,LABEL,meanRegionsValues,(firstPixelColumn + (lastPixelColumn - firstPixelColumn) / 2), firstPixelRow, lastPixelColumn, (firstPixelRow + (lastPixelRow - firstPixelRow) / 2), T,
+                    maximalRegionsCount);
+            ret3 = region_split_merge(inputImagePixels,segmentedImagePixels,LABEL,meanRegionsValues,firstPixelColumn, (firstPixelRow + (lastPixelRow - firstPixelRow) / 2), (firstPixelColumn + (lastPixelColumn - firstPixelColumn) / 2), lastPixelRow, T,
+                    maximalRegionsCount);
+            ret4 = region_split_merge(inputImagePixels,segmentedImagePixels,LABEL,meanRegionsValues,(firstPixelColumn + (lastPixelColumn - firstPixelColumn) / 2), (firstPixelRow + (lastPixelRow - firstPixelRow) / 2), lastPixelColumn, lastPixelRow, T,
+                    maximalRegionsCount);
             if (ret1 == -1 || ret2 == -1 || ret3 == -1 || ret4 == -1) {
                 ret = -1;
             }
         } else {
             sum=0;
             numberOfRegions++;
-            if( numberOfRegions > REGMAX) return -92;
-            for(int j=M1;j<M2;j++) {
-                for(int i=N1;i<N2;i++) {
-                    sum +=  a[j][i];
+            if( numberOfRegions > this.maximalRegionsCount) return -92;
+            for(int j=firstPixelRow;j<lastPixelRow;j++) {
+                for(int i=firstPixelColumn;i<lastPixelColumn;i++) {
+                    sum +=  inputImagePixels[j][i];
                     LABEL[j][i] = numberOfRegions;
                 }
             }
-            sum /= (((long)(N2 - N1) * (long)(M2 - M1)));
-            for(int j=M1;j<M2;j++) {
-                for(int i=N1;i<N2;i++) {
-                    b[j][i]=sum;
+            sum /= (((long) (lastPixelColumn - firstPixelColumn) * (lastPixelRow - firstPixelRow)));
+            for(int j=firstPixelRow;j<lastPixelRow;j++) {
+                for(int i=firstPixelColumn;i<lastPixelColumn;i++) {
+                    segmentedImagePixels[j][i]=sum;
                 }
             }
-            MARRAY[numberOfRegions] = (int) sum;
-            if (numberOfRegions > 1) merge(a,b,LABEL,MARRAY,N1, M1, N2, M2, T);
+            meanRegionsValues[numberOfRegions] = (int) sum;
+            if (numberOfRegions > 1) merge(inputImagePixels,segmentedImagePixels,LABEL,meanRegionsValues,firstPixelColumn, firstPixelRow, lastPixelColumn, lastPixelRow, T);
         }
         return ret;
     }
@@ -115,7 +112,6 @@ public class SplitAndMerge {
         if(M1 -1>=0) {yd =M1 -1;}else{yd =0;}
         if(M2 +1 < lastImageColumn) {yu =M2 +1;}else{yu = M2;}
         cmin = 255;
-
         if (M1 -1>=0) {
             y = M1 - 1;
             for (x = xd; x < xu; x++) {
@@ -183,6 +179,7 @@ public class SplitAndMerge {
             }
             MARRAY[mergingLabel]= sum;
             numberOfRegions--;
+
         }
     }
 

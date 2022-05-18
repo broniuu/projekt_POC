@@ -12,7 +12,6 @@ public class Main_1 {
         loadLibraries();
     }
    private static void loadLibraries() {
-
         try {
             InputStream in = null;
             File fileOut = null;

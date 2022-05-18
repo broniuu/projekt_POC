@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static java.lang.Math.abs;
-
 public class HelloController implements Initializable {
-    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg"};
-    public String[] ang={"start","Choose File","next","previous","Threshold"};
+    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg","Próbka iteracyjna"};
+    public String[] ang={"start","Choose File","next","previous","Threshold","Iteration Sample"};
     public String[] angL={"Polish","English"};
     public String[] polL={"Polski","Angielski"};
     public ImageView MainPhoto;
@@ -48,9 +46,7 @@ public class HelloController implements Initializable {
     boolean O=false;
     boolean P=false;
     String path="";
-    ObservableList<Integer> listOfItSample = FXCollections.observableArrayList(3000, 5000, 7000, 9000, 11000, 13000, 15000);
-
-
+    ObservableList<Integer> listOfItSample = FXCollections.observableArrayList(1000,3000, 5000, 7000, 9000, 11000, 13000, 15000);
     @FXML
     private Label welcomeText;
     
@@ -86,31 +82,42 @@ public class HelloController implements Initializable {
         Mat mt=new Mat();
         mt= Imgcodecs.imread(path);
         Mat finalMt = mt;
+
+        SplitAndMerge segmentatingMachine=new SplitAndMerge();
         Thread thread = new Thread(){
             public void run(){
-                SplitAndMerge SAM=new SplitAndMerge();
-                SAM.obliczenia(finalMt,Integer.parseInt(Threshold.getText()), (Integer) iterationSampleChoiceBox.getValue());
+                segmentatingMachine.obliczenia(finalMt,Integer.parseInt(Threshold.getText()), (Integer) iterationSampleChoiceBox.getValue());
                 matToImage mi =new matToImage();
-                images=SAM.images;
+                images=segmentatingMachine.images;
                 for (int i=0;i<finalMt.rows();i++)
-                    finalMt.put(i,0, SAM.segmentedImagePixels[i]);
+                    finalMt.put(i,0, segmentatingMachine.segmentedImagePixels[i]);
                 thirdIteration.setImage(mi.toImage(finalMt));
-
                 if(!images.isEmpty()){
                     firstIteration.setImage(images.get(0));
                 }
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
-                        postep.setText("Regions: "+SAM.getNumberOfRegions()+"   It:"+SAM.getIterator());
+                        postep.setText("Regions: "+segmentatingMachine.getNumberOfRegions() + "   It:"+segmentatingMachine.getIterator());
                     }
                 });
                 loading.setImage(new Image("ok-icon.png"));
+                //tu zaczyna sie kolorowanie I Ustawianie zdjęcia:
+                photoColoring pC=new photoColoring(segmentatingMachine.x,segmentatingMachine.y,segmentatingMachine.segmentedImagePixels) ;
+                pC.colors();
+                Image im=mi.toImage(pC.getColorImg());
+
+                thirdIteration.setImage(im); // obencie ustawia sie do wynikowego zdjęcia trzeba dorobić nowe okno
+                // a tu sie konczy
+
+
             }
         };
         thread.start();
+
         O=false;
         P=false;
     }
+
     public void prev(ActionEvent event) {
         if(images!=null){
             if(I>0){
@@ -132,6 +139,7 @@ public class HelloController implements Initializable {
         iterationSampleChoiceBox.setItems(listOfItSample);
         jezykBox.setItems(FXCollections.observableArrayList(angL));
         jezykBox.setValue(angL[0]);
+        iterationSampleChoiceBox.setValue(listOfItSample.get(0));
     }
     public void changeL(ActionEvent event) {
         jezykBox.setValue(jezykBox.getValue());
@@ -160,13 +168,4 @@ public class HelloController implements Initializable {
         }
     }
 
-
-
-
-
-
-
-    public void chooseIterationSample(ActionEvent event) {
-
-    }
 }
