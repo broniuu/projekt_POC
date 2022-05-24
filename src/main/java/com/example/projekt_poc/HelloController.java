@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -60,7 +61,7 @@ public class HelloController implements Initializable {
         I=0;
         FileChooser fileChooser=new FileChooser();
         String imagesPath = System.getProperty("user.dir");
-        fileChooser.setInitialDirectory(new File(imagesPath+"/Images"));
+        fileChooser.setInitialDirectory(new File(imagesPath+"./"));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg","*.bmp"));
         File selectedFile=fileChooser.showOpenDialog(null);
         
@@ -75,6 +76,7 @@ public class HelloController implements Initializable {
         }
     }
     public void start(ActionEvent event) {
+        OpenCV.loadLocally();
         if(images!=null){
             images.clear();
         }
@@ -191,8 +193,6 @@ public class HelloController implements Initializable {
             }
         }
     }
-
-
 
     public void checkAction(ActionEvent event) {
         if(Threshold.getText() != null){
