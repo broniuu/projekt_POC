@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
-    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg","Próbka iteracyjna"};
-    public String[] ang={"start","Choose File","next","previous","Threshold","Iteration Sample"};
+    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg","Próbka iteracyjna","przed segmentacją","etapy segmentacji","po segmentacji","Segmentacja Split And Merge","(naciśnij enter aby zatwierdzić próg)"};
+    public String[] ang={"start","select file","next","previous","Threshold","Iteration Sample","before segmentation","segmentation stages","after segmentation","Split And Merge Segmentation","(press enter to confirm treshold)"};
 //    public Language[] angL={new Language(1, "Polish"), new Language(2, "English")};
 //    public Language[] polL={new Language(1, "Polski"), new Language(2, "Angielski")};
-    public String[] languages ={"Polski","English"};
+    public String[] languages ={"polski","English"};
     public ImageView MainPhoto;
     public ImageView firstIteration;
     public ImageView thirdIteration;
@@ -42,6 +42,13 @@ public class HelloController implements Initializable {
     public TextField Threshold;
     public Label thresholdLabel;
     public Label postep;
+    public Label iterationSample;
+    public Label title;
+    public Label beforeSegmentation;
+    public Label segmentationStages;
+    public Label afterSegmentation;
+    public Label pressEnter;
+    public String[] regionsAndIterations = {"",""};
 
     public ChoiceBox iterationSampleChoiceBox;
     boolean O=false;
@@ -90,6 +97,7 @@ public class HelloController implements Initializable {
                 segmentatingMachine.obliczenia(finalMt,Integer.parseInt(Threshold.getText()), (Integer) iterationSampleChoiceBox.getValue());
                 matToImage mi =new matToImage();
                 images=segmentatingMachine.images;
+                images.add(segmentatingMachine.doubleToImage(segmentatingMachine.segmentedImagePixels));
                 for (int i=0;i<finalMt.rows();i++)
                     finalMt.put(i,0, segmentatingMachine.segmentedImagePixels[i]);
                 thirdIteration.setImage(mi.toImage(finalMt));
@@ -98,12 +106,20 @@ public class HelloController implements Initializable {
                 }
                 Platform.runLater(new Runnable() {
                     @Override public void run() {
-                        postep.setText("Regions: "+segmentatingMachine.getNumberOfRegions() + "   It:"+segmentatingMachine.getIterator());
+                        regionsAndIterations[0] = "Regiony: "+segmentatingMachine.getNumberOfRegions() + "   Iteracje: "+segmentatingMachine.getIterator();
+                        regionsAndIterations[1] = "Regions: "+segmentatingMachine.getNumberOfRegions() + "   Iterations: "+segmentatingMachine.getIterator();
+                        if(jezykBox.getValue()== languages[0]){
+                            postep.setText(regionsAndIterations[0]);
+                        }
+                        if(jezykBox.getValue()== languages[1]){
+                            postep.setText(regionsAndIterations[1]);
+                        }
+
                     }
                 });
                 loading.setImage(new Image("ok-icon.png"));
                 //tu zaczyna sie kolorowanie I Ustawianie zdjęcia:
-                photoColoring pC=new photoColoring(segmentatingMachine.x,segmentatingMachine.y,segmentatingMachine.segmentedImagePixels) ;
+                photoColoring pC=new photoColoring(segmentatingMachine.x,segmentatingMachine.y,segmentatingMachine.LABEL) ;
                 pC.colors();
                 Image im=mi.toImage(pC.getColorImg());
 
@@ -137,6 +153,7 @@ public class HelloController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        firstIteration.setStyle("-fx-background-color: BLACK");
         iterationSampleChoiceBox.setItems(listOfItSample);
         jezykBox.setItems(FXCollections.observableArrayList(languages));
         jezykBox.setValue(languages[1]);
@@ -144,20 +161,36 @@ public class HelloController implements Initializable {
     }
     public void changeL(ActionEvent event) {
         if(jezykBox.getValue()== languages[0]){
-            //jezykBox.setItems(FXCollections.observableArrayList(polL));
+            pressEnter.setText(pol[10]);
+            title.setText(pol[9]);
+            afterSegmentation.setText(pol[8]);
+            segmentationStages.setText(pol[7]);
+            beforeSegmentation.setText(pol[6]);
+            iterationSample.setText(pol[5]);
             thresholdLabel.setText(pol[4]);
             prevB.setText(pol[3]);
             nextB.setText(pol[2]);
             start.setText(pol[0]);
             chooseP.setText(pol[1]);
+            if(postep.getText() != ""){
+                postep.setText(regionsAndIterations[0]);
+            }
         }
         if(jezykBox.getValue()== languages[1]){
-            //jezykBox.setItems(FXCollections.observableArrayList(angL));
+            pressEnter.setText(ang[10]);
+            title.setText(ang[9]);
+            afterSegmentation.setText(ang[8]);
+            segmentationStages.setText(ang[7]);
+            beforeSegmentation.setText(ang[6]);
+            iterationSample.setText(ang[5]);
             thresholdLabel.setText(ang[4]);
             prevB.setText(ang[3]);
             nextB.setText(ang[2]);
             start.setText(ang[0]);
             chooseP.setText(ang[1]);
+            if(postep.getText() != ""){
+                postep.setText(regionsAndIterations[1]);
+            }
         }
     }
 

@@ -8,12 +8,13 @@ import static org.opencv.core.CvType.*;
 public class photoColoring {
     Mat colorImg;
     int IT=0;
-    double [] colors =new double[256];
-    double[][] picture;
+    int [] colors;
+    int[][] picture;
 
-    photoColoring(int x,int y,double[][] Photo){
+    photoColoring(int x,int y,int[][] Photo){
         colorImg=new Mat(x,y,CV_16UC3);
         picture=Photo;
+        colors = new int[x*y];
     }
 
     public void colors(){

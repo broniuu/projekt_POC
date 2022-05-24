@@ -58,15 +58,8 @@ public class SplitAndMerge {
         int  test , ret =0, ret1 , ret2 , ret3 , ret4 ;
         long sum ;
         if (iterator == iterationSampleSize + lastIterationSampleValue) {
-            matToImage mi =new matToImage();
-            Mat m=new Mat(x,y, CV_8UC1);
-            int j=0;
-            for (int i=0;i<inputImagePixels[1].length;i++){
-                m.put(i,0, segmentedImagePixels[i]);
-            }
-            images.add(mi.toImage(m));
+            images.add(doubleToImage(segmentedImagePixels));
             lastIterationSampleValue = lastIterationSampleValue + iterationSampleSize;
-
             //imshow("ImageWindow", segmentedImagePixels);
             //waitKey(0);
         }
@@ -228,4 +221,22 @@ public class SplitAndMerge {
     public void setIterationSampleSize(int iterationSampleSize) {
         this.iterationSampleSize = iterationSampleSize;
     }
+    public Image intToImage(int[][] pixels) {
+        matToImage mi = new matToImage();
+        Mat m = new Mat(x, y, CV_8UC1);
+        for (int i = 0; i < pixels[1].length; i++) {
+            m.put(i, 0, pixels[i]);
+        }
+        return mi.toImage(m);
+    }
+
+    public Image doubleToImage(double[][] pixels) {
+        matToImage mi = new matToImage();
+        Mat m = new Mat(x, y, CV_8UC1);
+        for (int i = 0; i < pixels[1].length; i++) {
+            m.put(i, 0, pixels[i]);
+        }
+        return mi.toImage(m);
+    }
+
 }
