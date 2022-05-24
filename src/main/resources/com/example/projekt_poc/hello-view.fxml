@@ -1,37 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.projekt_poc.HelloController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="486.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.projekt_poc.HelloController">
     <children>
-        <HBox prefHeight="25.0" prefWidth="950.0" spacing="40">
+        <HBox prefHeight="38.0" prefWidth="950.0" spacing="40">
             <children>
                 <Button fx:id="chooseP" mnemonicParsing="false" onAction="#getPath" text="Choose Photo" />
-                <Button disable="true" fx:id="start" mnemonicParsing="false" onAction="#start" text="Start" />
+                <Button fx:id="start" disable="true" mnemonicParsing="false" onAction="#start" text="Start" />
                 <ChoiceBox fx:id="jezykBox" onAction="#changeL" prefWidth="150.0" value="set language" />
             </children>
         </HBox>
-        <HBox alignment="CENTER" prefHeight="58.0" prefWidth="950.0">
+        <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="53.0" prefWidth="950.0" spacing="10">
             <children>
-                <Label fx:id="thresholdLabel" prefHeight="17.0" prefWidth="55.0" text="Treshold" />
-                <TextField onAction="#checkAction" fx:id="Threshold" prefHeight="25.0" prefWidth="41.0" />
-                <VBox prefHeight="85.0" prefWidth="565.0" />
-                <ImageView fx:id="loading" fitHeight="85.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" />
+            <VBox alignment="CENTER_LEFT" prefHeight="71.0" prefWidth="239.0">
+               <children>
+                  <HBox prefHeight="26.0" prefWidth="100.0" spacing="20">
+                     <children>
+                            <Label fx:id="thresholdLabel" alignment="TOP_RIGHT" prefHeight="17.0" prefWidth="56.0" text="Treshold" />
+                            <TextField fx:id="Threshold" alignment="CENTER" onAction="#checkAction" prefHeight="48.0" prefWidth="100.0" />
+                     </children>
+                  </HBox>
+                  <Label fx:id="pressEnter" prefHeight="41.0" prefWidth="235.0" text="(press enter to confirm treshold)" />
+               </children>
+            </VBox>
+            <Label fx:id="iterationSample" prefHeight="17.0" prefWidth="147.0" text="Iteration Sample" />
+            <ChoiceBox fx:id="iterationSampleChoiceBox" prefHeight="25.0" prefWidth="108.0" />
+                <ImageView fx:id="loading" fitHeight="71.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="title" prefHeight="64.0" prefWidth="403.0" text="Segmentacja Split And Merge">
+               <font>
+                  <Font name="System Bold Italic" size="24.0" />
+               </font>
+            </Label>
             </children></HBox>
-        <HBox alignment="CENTER" prefHeight="300.0" prefWidth="900.0" spacing="90">
+        <HBox alignment="CENTER" prefHeight="290.0" prefWidth="1104.0" spacing="30" style="-fx-background-color: gray;">
             <children>
+            <HBox prefHeight="100.0" prefWidth="20" />
                 <ImageView fx:id="MainPhoto" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
-                <Pane prefHeight="280.0" prefWidth="250.0">
-                    <children>
-                        <ImageView fx:id="firstIteration" fitHeight="250" fitWidth="250" layoutX="0.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" />
-                        <Button fx:id="nextB" layoutX="205.0" layoutY="280.0" mnemonicParsing="false" onAction="#next" text="next" />
-                        <Button fx:id="prevB" alignment="CENTER" layoutX="0.0" layoutY="280.0" mnemonicParsing="false" onAction="#prev" text="prev" />
-                    </children>
-                </Pane>
-                <ImageView fx:id="thirdIteration" fitHeight="250" fitWidth="250" layoutX="310.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="firstIteration" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="thirdIteration" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
+            <HBox prefHeight="100.0" prefWidth="20" />
             </children></HBox>
+      <HBox alignment="TOP_CENTER" prefHeight="16.0" prefWidth="950.0">
+         <children>
+            <VBox alignment="TOP_RIGHT" prefHeight="27.0" prefWidth="325.0">
+               <children>
+                  <Label fx:id="beforeSegmentation" contentDisplay="RIGHT" prefHeight="34.0" prefWidth="246.0" text="przed segmentacją">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="45.0" prefWidth="337.0">
+               <children>
+                  <Label fx:id="segmentationStages" alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="255.0" text="etapy Segmentacji">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                              <Button fx:id="prevB" alignment="CENTER" contentDisplay="BOTTOM" minWidth="55.0" mnemonicParsing="false" onAction="#prev" prefHeight="25.0" prefWidth="157.0" text="prev" />
+                              <Button fx:id="nextB" mnemonicParsing="false" onAction="#next" prefHeight="30.0" prefWidth="146.0" text="next" />
+                     </children>
+                  </HBox>
+               </children>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </VBox>
+            <VBox prefHeight="32.0" prefWidth="287.0">
+               <children>
+                  <Label fx:id="afterSegmentation" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="31.0" prefWidth="207.0" text="po segmentacji">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+          <VBox alignment="CENTER" prefHeight="46.0" prefWidth="950.0">
+         <children>
+            <Label fx:id="postep" alignment="CENTER" contentDisplay="CENTER" prefHeight="14.0" prefWidth="470.0" />
+         </children>
+      </VBox>
 
     </children>
 </VBox>

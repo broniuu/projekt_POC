@@ -1,6 +1,8 @@
 package com.example.projekt_poc;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,10 +23,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class HelloController implements Initializable {
-    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg"};
-    public String[] ang={"start","Choose File","next","previous","Threshold"};
-    public String[] angL={"Polish","English"};
-    public String[] polL={"Polski","Angielski"};
+    public String[] pol={"start","wybierz plik","następny","poprzedni","Próg","Próbka iteracyjna","przed segmentacją","etapy segmentacji","po segmentacji","Segmentacja Split And Merge","(naciśnij enter aby zatwierdzić próg)"};
+    public String[] ang={"start","select file","next","previous","Threshold","Iteration Sample","before segmentation","segmentation stages","after segmentation","Split And Merge Segmentation","(press enter to confirm treshold)"};
+    public String[] languages ={"polski","English"};
     public ImageView MainPhoto;
     public ImageView firstIteration;
     public ImageView thirdIteration;
@@ -38,16 +39,28 @@ public class HelloController implements Initializable {
     public ImageView loading;
     public TextField Threshold;
     public Label thresholdLabel;
-    boolean T=false;
+    public Label postep;
+    public Label iterationSample;
+    public Label title;
+    public Label beforeSegmentation;
+    public Label segmentationStages;
+    public Label afterSegmentation;
+    public Label pressEnter;
+    public String[] regionsAndIterations = {"",""};
+
+    public ChoiceBox iterationSampleChoiceBox;
+    boolean O=false;
     boolean P=false;
     String path="";
+    ObservableList<Integer> listOfItSample = FXCollections.observableArrayList(1000,3000, 5000, 7000, 9000, 11000, 13000, 15000);
     @FXML
     private Label welcomeText;
     
     public void getPath(ActionEvent event) {
         I=0;
         FileChooser fileChooser=new FileChooser();
-        fileChooser.setInitialDirectory(new File("./Images"));
+        String imagesPath = System.getProperty("user.dir");
+        fileChooser.setInitialDirectory(new File(imagesPath+"/Images"));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg","*.bmp"));
         File selectedFile=fileChooser.showOpenDialog(null);
         
@@ -57,32 +70,66 @@ public class HelloController implements Initializable {
             MainPhoto.setImage(im);
             P=true;
         }
-        if(P && T){
+        if(P && O){
             start.setDisable(false);
         }
     }
     public void start(ActionEvent event) {
+        if(images!=null){
+            images.clear();
+        }
+        thirdIteration.setImage(null);
         I=0;
+        postep.setText("");
         firstIteration.setImage(null);
         Image image=new Image("Gear.gif");
         loading.setImage(image);
         images=new ArrayList<>();
-        Mat b= Imgcodecs.imread(path);
-        SplitAndMerge splitAndMerge=new SplitAndMerge();
+        Mat mt=new Mat();
+        mt= Imgcodecs.imread(path);
+        Mat finalMt = mt;
+
+        SplitAndMerge segmentatingMachine=new SplitAndMerge();
         Thread thread = new Thread(){
             public void run(){
-                splitAndMerge.obliczenia(b,Integer.parseInt(Threshold.getText()));
-                matToImage mi =new matToImage();
-                images.addAll(mi.toImages(splitAndMerge.c));
-                thirdIteration.setImage(mi.toImage(splitAndMerge.b));
+                segmentatingMachine.obliczenia(finalMt,Integer.parseInt(Threshold.getText()), (Integer) iterationSampleChoiceBox.getValue());
+                MatToImage mi =new MatToImage();
+                images=segmentatingMachine.images;
+                images.add(segmentatingMachine.doubleToImage(segmentatingMachine.segmentedImagePixels));
+                for (int i=0;i<finalMt.rows();i++)
+                    finalMt.put(i,0, segmentatingMachine.segmentedImagePixels[i]);
+                thirdIteration.setImage(mi.toImage(finalMt));
                 if(!images.isEmpty()){
-                    firstIteration.setImage(images.get(I));
+                    firstIteration.setImage(images.get(0));
                 }
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        regionsAndIterations[0] = "Regiony: "+segmentatingMachine.getNumberOfRegions() + "   Iteracje: "+segmentatingMachine.getIterator();
+                        regionsAndIterations[1] = "Regions: "+segmentatingMachine.getNumberOfRegions() + "   Iterations: "+segmentatingMachine.getIterator();
+                        if(jezykBox.getValue()== languages[0]){
+                            postep.setText(regionsAndIterations[0]);
+                        }
+                        if(jezykBox.getValue()== languages[1]){
+                            postep.setText(regionsAndIterations[1]);
+                        }
+
+                    }
+                });
                 loading.setImage(new Image("ok-icon.png"));
+                //tu zaczyna sie kolorowanie I Ustawianie zdjęcia:
+                photoColoring pC=new photoColoring(segmentatingMachine.x,segmentatingMachine.y,segmentatingMachine.LABEL) ;
+                pC.colors();
+                Image im=mi.toImage(pC.getColorImg());
+
+                thirdIteration.setImage(im); // obencie ustawia sie do wynikowego zdjęcia trzeba dorobić nowe okno
+                // a tu sie konczy
+
+
             }
         };
         thread.start();
-        T=false;
+
+        O=false;
         P=false;
     }
 
@@ -94,7 +141,6 @@ public class HelloController implements Initializable {
             }
         }
     }
-
     public void next(ActionEvent event) {
         if(images!=null){
             if(I+1<images.size()){
@@ -105,33 +151,56 @@ public class HelloController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-            jezykBox.setItems(FXCollections.observableArrayList(angL));
-            jezykBox.setValue(angL[0]);
+        firstIteration.setStyle("-fx-background-color: BLACK");
+        iterationSampleChoiceBox.setItems(listOfItSample);
+        jezykBox.setItems(FXCollections.observableArrayList(languages));
+        jezykBox.setValue(languages[1]);
+        iterationSampleChoiceBox.setValue(listOfItSample.get(0));
     }
     public void changeL(ActionEvent event) {
-        jezykBox.setValue(jezykBox.getValue());
-        if(jezykBox.getValue()==angL[0]){
+        if(jezykBox.getValue()== languages[0]){
+            pressEnter.setText(pol[10]);
+            title.setText(pol[9]);
+            afterSegmentation.setText(pol[8]);
+            segmentationStages.setText(pol[7]);
+            beforeSegmentation.setText(pol[6]);
+            iterationSample.setText(pol[5]);
             thresholdLabel.setText(pol[4]);
             prevB.setText(pol[3]);
             nextB.setText(pol[2]);
             start.setText(pol[0]);
             chooseP.setText(pol[1]);
+            if(postep.getText() != ""){
+                postep.setText(regionsAndIterations[0]);
+            }
         }
-        else{
+        if(jezykBox.getValue()== languages[1]){
+            pressEnter.setText(ang[10]);
+            title.setText(ang[9]);
+            afterSegmentation.setText(ang[8]);
+            segmentationStages.setText(ang[7]);
+            beforeSegmentation.setText(ang[6]);
+            iterationSample.setText(ang[5]);
             thresholdLabel.setText(ang[4]);
             prevB.setText(ang[3]);
             nextB.setText(ang[2]);
             start.setText(ang[0]);
             chooseP.setText(ang[1]);
+            if(postep.getText() != ""){
+                postep.setText(regionsAndIterations[1]);
+            }
         }
     }
 
+
+
     public void checkAction(ActionEvent event) {
         if(Threshold.getText() != null){
-            T=true;
+            O=true;
         }
-        if(P && T){
+        if(P && O){
             start.setDisable(false);
         }
     }
+
 }
