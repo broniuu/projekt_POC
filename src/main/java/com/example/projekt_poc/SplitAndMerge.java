@@ -16,7 +16,7 @@ public class SplitAndMerge {
     int x ;
     int numberOfRegions;
     //  int REGMAX = 20000; // maksymalna ilość regionówint
-    final int maximalRegionsCount = 200000; // maksymalna ilość regionówint
+    int maximalRegionsCount = 200000; // maksymalna ilość regionówint
     double[] meanRegionsValues = new double[maximalRegionsCount];
     int[][] LABEL = new int[x][y]; //array intow zawierajacy labele // w ksiazce zapisane jako *LABEL
     int lastIterationSampleValue = 0;
@@ -40,6 +40,7 @@ public class SplitAndMerge {
         }
         y = c.rows();
         x =  c.cols();
+        maximalRegionsCount=x*y;
         lastImageRow = x; // nie wiem, chyba granice obrazu
         lastImageColumn = y; // nie wiem, chyba granice obrazu
         numberOfRegions = 0; // ilość regionów # w książce odnoszą sie doniej przez referencje wiec chyba chcą mieć ją jako zmienna

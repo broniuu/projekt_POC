@@ -42,7 +42,7 @@
             <HBox prefHeight="100.0" prefWidth="20" />
                 <ImageView fx:id="MainPhoto" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
                   <ImageView fx:id="firstIteration" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
-                <ImageView fx:id="thirdIteration" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="coloredImage" fitHeight="250" fitWidth="250" pickOnBounds="true" preserveRatio="true" />
             <HBox prefHeight="100.0" prefWidth="20" />
             </children></HBox>
       <HBox alignment="TOP_CENTER" prefHeight="16.0" prefWidth="950.0">
@@ -76,11 +76,17 @@
             </VBox>
             <VBox prefHeight="32.0" prefWidth="287.0">
                <children>
-                  <Label fx:id="afterSegmentation" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="31.0" prefWidth="207.0" text="po segmentacji">
+                  <Label fx:id="afterSegmentation" alignment="CENTER_RIGHT" contentDisplay="RIGHT" prefHeight="31.0" prefWidth="200.0" text="po segmentacji">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
+                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                       <children>
+                           <Button fx:id="prevB2" alignment="CENTER" contentDisplay="BOTTOM" minWidth="55.0" mnemonicParsing="false" onAction="#prevC" prefHeight="25.0" prefWidth="157.0" text="prev" />
+                           <Button fx:id="nextB2" mnemonicParsing="false" onAction="#nextC" prefHeight="30.0" prefWidth="146.0" text="next" />
+                       </children>
+                   </HBox>
                </children>
             </VBox>
          </children>
